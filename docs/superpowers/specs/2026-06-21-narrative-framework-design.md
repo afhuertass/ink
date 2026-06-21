@@ -46,6 +46,7 @@ Programmers write this file. It declares the "API" that writers can reference in
 ### Top-Level Structure
 
 ```yaml
+# Schema version for the .inkdef.yaml format
 version: 1
 
 assets:
@@ -189,13 +190,15 @@ Writers type these inside `.ink` files. The `@` prefix makes directives visually
    @ character: elara
    @ character: elara(expression: angry)
    ```
+   Parenthetical modifiers on any directive type pass named key-value pairs to the engine. The compiler validates modifier keys against the definitions schema (if the character definition declares supported modifiers). Unrecognized modifiers produce warnings, not errors.
 
 4. **State** — read or modify custom game state
    ```
-   @ state: suspicion_level + 10
+   @ state: suspicion_level = suspicion_level + 10
    @ state: has_map = true
    @ state: current_companion = "elara"
    ```
+   State directives always use assignment (`=`). The right-hand side can reference the same variable (for increments/decrements) or be a literal value. This avoids ambiguity with ink's `~` assignment syntax and keeps state directives as explicit signals to the engine, not computed expressions.
 
 5. **Event** — emit a named event
    ```
