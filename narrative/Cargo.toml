@@ -5,3 +5,7 @@ members = [
     "crates/cli",
 ]
 resolver = "2"
+
+[workspace.dependencies]
+ink-parser = { path = "crates/ink-parser" }
+narrative-compiler = { path = "crates/compiler" }
