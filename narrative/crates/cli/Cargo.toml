@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+ink-parser = { path = "../ink-parser" }
 narrative-compiler = { path = "../compiler" }
 clap = { version = "4", features = ["derive"] }
