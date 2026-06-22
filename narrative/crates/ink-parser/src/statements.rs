@@ -202,6 +202,17 @@ fn parse_statement_at_level(p: &mut Parser, level: StatementLevel) -> Option<Sto
         return Some(StoryNode::AuthorWarning(msg));
     }
 
+    // Tag (# tag_name)
+    if p.peek() == Some('#') {
+        let rule_id = p.begin_rule();
+        if let Some(tag) = crate::tags::parse_tag(p) {
+            p.succeed_rule(rule_id);
+            p.parse_newline();
+            return Some(StoryNode::Tag(tag));
+        }
+        p.fail_rule(rule_id);
+    }
+
     // Line of mixed text and logic
     crate::content::parse_text_line(p)
 }
