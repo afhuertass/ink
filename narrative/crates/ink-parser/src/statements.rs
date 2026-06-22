@@ -134,6 +134,26 @@ fn parse_statement_at_level(p: &mut Parser, level: StatementLevel) -> Option<Sto
         p.fail_rule(rule_id);
     }
 
+    // LIST declaration
+    {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::lists::parse_list_declaration(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
+    // INCLUDE statement
+    {
+        let rule_id = p.begin_rule();
+        if let Some(filename) = crate::include::parse_include(p) {
+            p.succeed_rule(rule_id);
+            return Some(StoryNode::Include(filename));
+        }
+        p.fail_rule(rule_id);
+    }
+
     // Logic line (~ ...)
     if p.peek() == Some('~') {
         let rule_id = p.begin_rule();
@@ -142,6 +162,38 @@ fn parse_statement_at_level(p: &mut Parser, level: StatementLevel) -> Option<Sto
             return Some(node);
         }
         p.fail_rule(rule_id);
+    }
+
+    // Sequence ({! | {~ | {& | { }) or Conditional ({ ... })
+    if p.peek() == Some('{') {
+        let remaining = p.remaining();
+        if remaining.starts_with("{!") || remaining.starts_with("{~") || remaining.starts_with("{&") {
+            // Likely a sequence
+            let rule_id = p.begin_rule();
+            if let Some(node) = crate::sequences::parse_sequence(p) {
+                p.succeed_rule(rule_id);
+                return Some(node);
+            }
+            p.fail_rule(rule_id);
+        } else if remaining.starts_with("{") {
+            // Could be conditional or sequence (plain { for stopping type)
+            // Try sequence first since it's clearer
+            let rule_id = p.begin_rule();
+            if let Some(node) = crate::sequences::parse_sequence(p) {
+                p.succeed_rule(rule_id);
+                return Some(node);
+            }
+            p.fail_rule(rule_id);
+
+            // Fall back to conditional
+            let rule_id = p.begin_rule();
+            if let Some(node) = crate::conditionals::parse_conditional(p) {
+                p.succeed_rule(rule_id);
+                p.parse_newline();
+                return Some(node);
+            }
+            p.fail_rule(rule_id);
+        }
     }
 
     // Author warning / TODO

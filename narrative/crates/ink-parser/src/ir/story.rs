@@ -28,10 +28,12 @@ pub enum StoryNode {
     Conditional(Conditional),
     VariableAssignment(VariableAssignment),
     ConstDeclaration(ConstDeclaration),
+    ListDeclaration(ListDeclaration),
     Tag(Tag),
     Logic(LogicBlock),
     AuthorWarning(String),
     Sequence(Sequence),
+    Include(String),
 }
 
 #[derive(Debug, Clone)]

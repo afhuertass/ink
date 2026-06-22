@@ -7,6 +7,11 @@ pub mod knot;
 pub mod choices;
 pub mod divert;
 pub mod logic;
+pub mod conditionals;
+pub mod sequences;
+pub mod tags;
+pub mod include;
+pub mod lists;
 
 use ir::story::ParsedStory;
 use parser::Parser;
