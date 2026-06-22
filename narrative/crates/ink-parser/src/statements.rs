@@ -83,6 +83,17 @@ fn parse_statement_at_level(p: &mut Parser, level: StatementLevel) -> Option<Sto
         p.fail_rule(rule_id);
     }
 
+    // Divert (-> target) — standalone divert line
+    if p.peek_str("->") {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::divert::parse_multi_divert(p) {
+            p.succeed_rule(rule_id);
+            p.parse_newline();
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
     // Gather (dashes, not in inner blocks)
     if level > StatementLevel::InnerBlock {
         let rule_id = p.begin_rule();

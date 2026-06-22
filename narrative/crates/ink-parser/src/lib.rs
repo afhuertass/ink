@@ -5,6 +5,7 @@ pub mod content;
 pub mod statements;
 pub mod knot;
 pub mod choices;
+pub mod divert;
 
 use ir::story::ParsedStory;
 use parser::Parser;
