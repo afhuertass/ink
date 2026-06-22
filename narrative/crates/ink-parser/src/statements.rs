@@ -104,6 +104,46 @@ fn parse_statement_at_level(p: &mut Parser, level: StatementLevel) -> Option<Sto
         p.fail_rule(rule_id);
     }
 
+    // VAR global declaration
+    {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::logic::parse_var_declaration(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
+    // CONST declaration
+    {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::logic::parse_const_declaration(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
+    // EXTERNAL declaration
+    {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::logic::parse_external_declaration(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
+    // Logic line (~ ...)
+    if p.peek() == Some('~') {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::logic::parse_logic_line(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
     // Author warning / TODO
     if let Some(msg) = whitespace::parse_author_warning(p) {
         p.parse_newline();

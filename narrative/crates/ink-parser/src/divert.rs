@@ -1,8 +1,6 @@
 use crate::parser::Parser;
-use crate::ir::base::*;
 use crate::ir::divert::*;
 use crate::ir::story::*;
-use crate::ir::expression::Expression;
 
 /// Parse diverts, tunnels, and threads
 /// Supports: -> target, -> tunnel ->, ->->, <- thread
@@ -99,7 +97,6 @@ fn parse_start_thread(p: &mut Parser) -> Option<StoryNode> {
     }
     p.parse_whitespace();
 
-    let loc = p.current_source_location();
     let divert = parse_divert_identifier_with_arguments(p)?;
     let mut thread_divert = divert;
     thread_divert.is_thread = true;
