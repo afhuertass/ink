@@ -170,6 +170,7 @@ dependencies = [
 name = "narrative-compiler"
 version = "0.1.0"
 dependencies = [
+ "def-parser",
  "ink-parser",
  "serde",
  "serde_json",
