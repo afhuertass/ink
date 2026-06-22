@@ -1,4 +1,3 @@
-use ink_parser::ir::*;
 use ink_parser::parser::Parser;
 
 #[test]
@@ -45,7 +44,7 @@ fn test_parser_parse_newline() {
 
 #[test]
 fn test_parser_peek() {
-    let mut p = Parser::new("abc", "test.ink");
+    let p = Parser::new("abc", "test.ink");
     assert_eq!(p.peek(), Some('a'));
     assert_eq!(p.position(), 0);
 }
