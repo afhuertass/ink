@@ -21,6 +21,9 @@ narrative compile story.ink -o output.json
 narrative check story.ink
 narrative check story.ink --warnings
 
+# Validate definitions
+narrative check-defs story.inkdef.yaml
+
 # Play interactively (via inkjs/Node.js)
 narrative play story.ink
 
@@ -74,6 +77,17 @@ narrative/
 │   │       ├── divert.rs
 │   │       ├── logic.rs
 │   │       └── features.rs
+│   │
+│   ├── def-parser/               # Definitions parser (.inkdef.yaml)
+│   │   ├── src/
+│   │   │   ├── lib.rs            #   Public API: parse_definitions()
+│   │   │   ├── types.rs          #   Definitions, Asset, Character, Scene, Action, StateVar, Event
+│   │   │   ├── validate.rs       #   Cross-reference validation
+│   │   │   └── error.rs          #   DefinitionError types
+│   │   └── tests/
+│   │       ├── parse_tests.rs    #   YAML deserialization tests
+│   │       ├── validation_tests.rs # Validation error tests
+│   │       └── integration.rs    # End-to-end integration tests
 │   │
 │   ├── compiler/                 # Compiler (IR → runtime objects → JSON)
 │   │   ├── src/
@@ -162,7 +176,7 @@ ink source (.ink)
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 1 | Rust ink compiler (compatible JSON output) | ✅ Complete |
-| 2 | Definitions parser (`.inkdef.yaml`) | 🔜 Next |
+| 2 | Definitions parser (`.inkdef.yaml`) | ✅ Complete |
 | 3 | Directives (`@` prefix) + validation | Planned |
 | 4 | LSP with validation + autocompletion | Planned |
 | 5 | Godot SDK | Planned |
