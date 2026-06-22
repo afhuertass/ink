@@ -3,6 +3,7 @@ members = [
     "crates/ink-parser",
     "crates/compiler",
     "crates/cli",
+    "crates/def-parser",
 ]
 resolver = "2"
 
