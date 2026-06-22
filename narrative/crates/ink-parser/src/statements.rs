@@ -57,7 +57,22 @@ pub fn parse_statements_at_level(p: &mut Parser, level: StatementLevel) -> Vec<S
     content
 }
 
-fn parse_statement_at_level(p: &mut Parser, _level: StatementLevel) -> Option<StoryNode> {
+fn parse_statement_at_level(p: &mut Parser, level: StatementLevel) -> Option<StoryNode> {
+    // Knot definition (only at top level)
+    if level >= StatementLevel::Top && crate::knot::at_knot_declaration(p) {
+        return crate::knot::parse_knot_definition(p);
+    }
+
+    // Stitch definition (at knot level and above)
+    if level >= StatementLevel::Knot {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::knot::parse_stitch_definition(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
     // Author warning / TODO
     if let Some(msg) = whitespace::parse_author_warning(p) {
         p.parse_newline();
@@ -72,15 +87,13 @@ fn should_break_for_level(p: &mut Parser, level: StatementLevel) -> bool {
     if p.is_end() {
         return true;
     }
-    // Check for constructs that break the current level
     if level <= StatementLevel::Knot {
-        if p.peek_str("===") {
+        if p.remaining().starts_with("===") {
             return true;
         }
     }
     if level <= StatementLevel::Stitch {
-        // Single = for stitch, but not == (which is knot)
-        if p.peek() == Some('=') && !p.peek_str("==") {
+        if p.peek() == Some('=') && !p.remaining().starts_with("==") {
             return true;
         }
     }

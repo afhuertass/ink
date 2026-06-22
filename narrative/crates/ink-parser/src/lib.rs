@@ -3,6 +3,7 @@ pub mod parser;
 pub mod whitespace;
 pub mod content;
 pub mod statements;
+pub mod knot;
 
 use ir::story::ParsedStory;
 use parser::Parser;
