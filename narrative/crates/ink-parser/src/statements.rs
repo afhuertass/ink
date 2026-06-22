@@ -73,6 +73,26 @@ fn parse_statement_at_level(p: &mut Parser, level: StatementLevel) -> Option<Sto
         p.fail_rule(rule_id);
     }
 
+    // Choice (* or + bullets)
+    if p.peek() == Some('*') || p.peek() == Some('+') {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::choices::parse_choice_full(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
+    // Gather (dashes, not in inner blocks)
+    if level > StatementLevel::InnerBlock {
+        let rule_id = p.begin_rule();
+        if let Some(node) = crate::choices::parse_gather(p) {
+            p.succeed_rule(rule_id);
+            return Some(node);
+        }
+        p.fail_rule(rule_id);
+    }
+
     // Author warning / TODO
     if let Some(msg) = whitespace::parse_author_warning(p) {
         p.parse_newline();
