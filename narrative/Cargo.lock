@@ -133,6 +133,7 @@ dependencies = [
  "clap",
  "ink-parser",
  "narrative-compiler",
+ "serde_json",
 ]
 
 [[package]]

@@ -7,3 +7,4 @@ edition = "2021"
 ink-parser = { path = "../ink-parser" }
 narrative-compiler = { path = "../compiler" }
 clap = { version = "4", features = ["derive"] }
+serde_json = "1"

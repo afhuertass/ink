@@ -1,9 +1,11 @@
 use clap::{Parser, Subcommand};
 use std::fs;
+use std::process::Command as Cmd;
 
 #[derive(Parser)]
 #[command(name = "narrative")]
-#[command(about = "Narrative framework compiler", long_about = None)]
+#[command(about = "Narrative framework compiler for ink stories", long_about = None)]
+#[command(version)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -20,14 +22,22 @@ enum Commands {
         /// Output file (default: stdout)
         #[arg(short, long)]
         output: Option<String>,
+
+        /// Pretty-print JSON output
+        #[arg(long)]
+        pretty: bool,
     },
     /// Check an ink file for errors without compiling
     Check {
         /// Path to the ink file
         #[arg(value_name = "FILE")]
         file: String,
+
+        /// Show warnings as well as errors
+        #[arg(short, long)]
+        warnings: bool,
     },
-    /// Play/interactive mode (basic REPL - stub for now)
+    /// Play an ink file interactively using inkjs
     Play {
         /// Path to the ink file
         #[arg(value_name = "FILE")]
@@ -39,58 +49,142 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Compile { file, output } => {
-            let source = match fs::read_to_string(&file) {
-                Ok(s) => s,
-                Err(e) => {
-                    eprintln!("Error reading file '{}': {}", file, e);
-                    std::process::exit(1);
-                }
-            };
+        Commands::Compile { file, output, pretty } => {
+            let source = read_file(&file);
 
             match narrative_compiler::compile_ink(&source, &file) {
                 Ok(json) => {
+                    let output_json = if pretty {
+                        match serde_json::from_str::<serde_json::Value>(&json) {
+                            Ok(val) => serde_json::to_string_pretty(&val).unwrap_or(json),
+                            Err(_) => json,
+                        }
+                    } else {
+                        json
+                    };
+
                     if let Some(outfile) = output {
-                        if let Err(e) = fs::write(&outfile, &json) {
+                        if let Err(e) = fs::write(&outfile, &output_json) {
                             eprintln!("Error writing output: {}", e);
                             std::process::exit(1);
                         }
-                        println!("Compiled to {}", outfile);
+                        eprintln!("Compiled to {}", outfile);
                     } else {
-                        println!("{}", json);
+                        println!("{}", output_json);
                     }
                 }
                 Err(errors) => {
-                    eprintln!("Compilation errors:");
-                    for e in errors {
+                    eprintln!("Compilation errors in {}:", file);
+                    for e in &errors {
                         eprintln!("  {}", e);
                     }
                     std::process::exit(1);
                 }
             }
         }
-        Commands::Check { file } => {
-            let source = match fs::read_to_string(&file) {
-                Ok(s) => s,
-                Err(e) => {
-                    eprintln!("Error reading file '{}': {}", file, e);
+        Commands::Check { file, warnings } => {
+            let source = read_file(&file);
+
+            let parsed = ink_parser::parse_story(&source, &file);
+            if parsed.has_errors() {
+                eprintln!("Errors in {}:", file);
+                for e in &parsed.errors {
+                    if e.is_error() {
+                        eprintln!("  ERROR: {}", e);
+                    } else if warnings {
+                        eprintln!("  WARNING: {}", e);
+                    }
+                }
+                std::process::exit(1);
+            } else {
+                if warnings {
+                    let warns: Vec<_> = parsed.errors.iter().filter(|e| !e.is_error()).collect();
+                    if !warns.is_empty() {
+                        eprintln!("Warnings in {}:", file);
+                        for w in warns {
+                            eprintln!("  WARNING: {}", w);
+                        }
+                    }
+                }
+                println!("✓ No errors found in {}", file);
+            }
+        }
+        Commands::Play { file } => {
+            let source = read_file(&file);
+
+            // Compile to JSON
+            let json = match narrative_compiler::compile_ink(&source, &file) {
+                Ok(j) => j,
+                Err(errors) => {
+                    eprintln!("Compilation errors:");
+                    for e in &errors {
+                        eprintln!("  {}", e);
+                    }
                     std::process::exit(1);
                 }
             };
 
-            let parsed = ink_parser::parse_story(&source, &file);
-            if parsed.has_errors() {
-                eprintln!("Errors found:");
-                for e in &parsed.errors {
-                    eprintln!("  {}", e);
+            // Write JSON to temp file
+            let tmp_json = format!("/tmp/narrative_play_{}.json", std::process::id());
+            fs::write(&tmp_json, &json).expect("Failed to write temp JSON");
+
+            // Run with inkjs via node
+            let script = format!(
+                r#"
+const {{Story}} = require('inkjs');
+const fs = require('fs');
+try {{
+    const json = fs.readFileSync('{}', 'utf8');
+    const story = new Story(json);
+    while (story.canContinue) {{
+        process.stdout.write(story.Continue());
+    }}
+    if (story.currentChoices.length > 0) {{
+        for (let i = 0; i < story.currentChoices.length; i++) {{
+            console.log(`${{i+1}}: ${{story.currentChoices[i].text}}`);
+        }}
+    }}
+}} catch(e) {{
+    console.error('Runtime error:', e.message);
+    process.exit(1);
+}}"#,
+                tmp_json.replace('\\', "\\\\").replace('\'', "\\'")
+            );
+
+            let result = Cmd::new("node")
+                .arg("-e")
+                .arg(&script)
+                .output();
+
+            let _ = fs::remove_file(&tmp_json);
+
+            match result {
+                Ok(output) => {
+                    if output.status.success() {
+                        print!("{}", String::from_utf8_lossy(&output.stdout));
+                        if !output.stderr.is_empty() {
+                            eprint!("{}", String::from_utf8_lossy(&output.stderr));
+                        }
+                    } else {
+                        eprintln!("Runtime error: {}", String::from_utf8_lossy(&output.stderr));
+                        std::process::exit(1);
+                    }
                 }
-                std::process::exit(1);
-            } else {
-                println!("No errors found.");
+                Err(e) => {
+                    eprintln!("Failed to run node: {} (is Node.js installed?)", e);
+                    std::process::exit(1);
+                }
             }
         }
-        Commands::Play { file: _ } => {
-            println!("Play mode not yet implemented. Use 'compile' to generate JSON.");
+    }
+}
+
+fn read_file(path: &str) -> String {
+    match fs::read_to_string(path) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("Error reading file '{}': {}", path, e);
+            std::process::exit(1);
         }
     }
 }
