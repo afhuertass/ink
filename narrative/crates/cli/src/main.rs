@@ -43,6 +43,12 @@ enum Commands {
         #[arg(value_name = "FILE")]
         file: String,
     },
+    /// Validate a definitions file
+    CheckDefs {
+        /// Path to the .inkdef.yaml file
+        #[arg(value_name = "FILE")]
+        file: String,
+    },
 }
 
 fn main() {
@@ -172,6 +178,24 @@ try {{
                 }
                 Err(e) => {
                     eprintln!("Failed to run node: {} (is Node.js installed?)", e);
+                    std::process::exit(1);
+                }
+            }
+        }
+        Commands::CheckDefs { file } => {
+            let source = read_file(&file);
+            match def_parser::parse_definitions(&source, &file) {
+                Ok(defs) => {
+                    println!("✓ Valid definitions in {} (v{})", file, defs.version);
+                    println!("  {} assets, {} characters, {} scenes, {} actions, {} state vars, {} events",
+                        defs.assets.len(), defs.characters.len(), defs.scenes.len(),
+                        defs.actions.len(), defs.state.len(), defs.events.len());
+                }
+                Err(errors) => {
+                    eprintln!("Validation errors in {}:", file);
+                    for e in &errors {
+                        eprintln!("  {}", e);
+                    }
                     std::process::exit(1);
                 }
             }

@@ -6,5 +6,6 @@ edition = "2021"
 [dependencies]
 ink-parser = { path = "../ink-parser" }
 narrative-compiler = { path = "../compiler" }
+def-parser = { path = "../def-parser" }
 clap = { version = "4", features = ["derive"] }
 serde_json = "1"
