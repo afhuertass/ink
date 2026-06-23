@@ -1,12 +1,31 @@
-# Narrative — Ink Compiler & Story Framework
+# Narrative Framework
 
-A Rust rewrite of the [ink](https://github.com/inkle/ink) narrative scripting compiler, extended with a structured directive system for story-driven/text games.
+A declarative framework for story-driven and text games.
 
-## Status
+Narrative bridges the gap between structured narrative scripting (`ink`) and game engine implementation (`Godot`, `Unity`). It extends `ink` with a structured directive system, allowing writers to reference game scene elements — assets, sounds, actions, events — directly within their stories.
 
-**Phase 1 complete** — the Rust ink compiler produces ink JSON (version 21) compatible with existing runtimes (inkjs, ink-unity-integration). 160 tests passing.
+## The Philosophy
 
-## Quick Start
+Narrative defines a clear boundary between writing and programming:
+
+*   **Programmer Workflow (`.inkdef.yaml`)**: Programmers define the "API" for the narrative — declaring assets, available actions, game state variables, and events.
+*   **Writer Workflow (`.ink`)**: Writers reference these definitions via validated `@` directives in their ink stories, ensuring that narrative scripts stay in sync with game engine capabilities.
+
+This setup provides compile-time validation of game-side references, autocompletion for writers, and clean, engine-agnostic compilation.
+
+## Roadmap
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Rust ink compiler (compatible JSON output) | ✅ Complete |
+| 2 | Definitions parser (`.inkdef.yaml`) | ✅ Complete |
+| 3 | Directives (`@` prefix) + validation | Planned |
+| 4 | LSP with validation + autocompletion | Planned |
+| 5 | Godot SDK | Planned |
+
+## Getting Started
+
+[... Quick Start section ...]
 
 ```bash
 # Build
