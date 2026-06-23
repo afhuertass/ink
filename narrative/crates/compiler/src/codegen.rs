@@ -86,7 +86,7 @@ fn compile_story_node(node: &StoryNode, story: &mut Story) {
         StoryNode::Sequence(seq) => {
             compile_sequence(seq, &mut story.root);
         }
-        StoryNode::Choice(_) | StoryNode::Gather(_) | StoryNode::Include(_) => {}
+                StoryNode::Choice(_) | StoryNode::Gather(_) | StoryNode::Include(_) | StoryNode::Directive(_) => {}
     }
 }
 
@@ -172,7 +172,7 @@ fn compile_knot_content(nodes: &[StoryNode], container: &mut Container) {
                 }
             }
             StoryNode::AuthorWarning(_) | StoryNode::ConstDeclaration(_)
-            | StoryNode::ListDeclaration(_) | StoryNode::Include(_) => {}
+            | StoryNode::ListDeclaration(_) | StoryNode::Include(_) | StoryNode::Directive(_) => {}
         }
     }
 }

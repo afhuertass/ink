@@ -12,6 +12,7 @@ pub mod sequences;
 pub mod tags;
 pub mod include;
 pub mod lists;
+pub mod directives;
 
 use ir::story::ParsedStory;
 use parser::Parser;

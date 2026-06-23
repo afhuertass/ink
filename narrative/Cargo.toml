@@ -4,6 +4,8 @@ members = [
     "crates/compiler",
     "crates/cli",
     "crates/def-parser",
+    "crates/lsp",
+    "crates/godot-sdk",
 ]
 resolver = "2"
 

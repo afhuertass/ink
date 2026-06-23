@@ -11,6 +11,7 @@ pub mod sequence;
 pub mod tag;
 pub mod list_def;
 pub mod external;
+pub mod directive;
 
 pub use base::*;
 pub use story::*;
@@ -25,3 +26,4 @@ pub use sequence::*;
 pub use tag::*;
 pub use list_def::*;
 pub use external::*;
+pub use directive::*;

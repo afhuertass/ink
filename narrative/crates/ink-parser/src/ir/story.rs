@@ -34,6 +34,7 @@ pub enum StoryNode {
     AuthorWarning(String),
     Sequence(Sequence),
     Include(String),
+    Directive(crate::ir::directive::Directive),
 }
 
 #[derive(Debug, Clone)]

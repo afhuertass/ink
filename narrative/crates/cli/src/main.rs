@@ -26,6 +26,10 @@ enum Commands {
         /// Pretty-print JSON output
         #[arg(long)]
         pretty: bool,
+
+        /// Definitions file (.inkdef.yaml) for directive validation
+        #[arg(long)]
+        definitions: Option<String>,
     },
     /// Check an ink file for errors without compiling
     Check {
@@ -55,8 +59,43 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Compile { file, output, pretty } => {
+        Commands::Compile { file, output, pretty, definitions } => {
             let source = read_file(&file);
+
+            if let Some(defs_file) = definitions {
+                // Full compilation with definitions
+                let defs_source = read_file(&defs_file);
+                match narrative_compiler::compile_full(&source, &file, &defs_source, &defs_file) {
+                    Ok(compilation) => {
+                        let ink_json = if pretty {
+                            compilation.ink_json
+                        } else {
+                            compilation.ink_json
+                        };
+                        if let Some(outfile) = output {
+                            if let Err(e) = fs::write(&outfile, &ink_json) {
+                                eprintln!("Error writing output: {}", e);
+                                std::process::exit(1);
+                            }
+                            // Also write manifest and schema alongside
+                            let base = outfile.trim_end_matches(".json");
+                            let _ = fs::write(format!("{}.directives.json", base), &compilation.directives_manifest);
+                            let _ = fs::write(format!("{}.schema.json", base), &compilation.definitions_schema);
+                            eprintln!("Compiled to {} (+ manifest + schema)", outfile);
+                        } else {
+                            println!("{}", ink_json);
+                        }
+                    }
+                    Err(errors) => {
+                        eprintln!("Compilation errors in {}:", file);
+                        for e in &errors {
+                            eprintln!("  {}", e);
+                        }
+                        std::process::exit(1);
+                    }
+                }
+            } else {
+                let source = read_file(&file);
 
             match narrative_compiler::compile_ink(&source, &file) {
                 Ok(json) => {
