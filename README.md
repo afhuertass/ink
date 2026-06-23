@@ -1,8 +1,8 @@
-# Narrative Framework
+# A Narrative Framework
 
-A declarative framework for story-driven and text games.
+A nameless declarative framework for story-driven and text games.
 
-This repository is a **fork of [inkle/ink](https://github.com/inkle/ink)**, extended with a structured directive system and a rewritten Rust compiler. CODE is lARGELY AI DRIVEN at this stage, I'm just testing the limits and ideas, nowhere near to be useful for something (other than burning my precious tokens)
+This repository is a **fork of [inkle/ink](https://github.com/inkle/ink)**, extended with a structured directive system and a rewritten Rust compiler. CODE is LARGELY AI DRIVEN at this stage, I'm just testing the limits and ideas, nowhere near to be useful for something (other than burning my precious tokens)
 
 ## Purpose
 
