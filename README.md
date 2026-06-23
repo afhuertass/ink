@@ -2,7 +2,7 @@
 
 A declarative framework for story-driven and text games.
 
-This repository is a **fork of [inkle/ink](https://github.com/inkle/ink)**, extended with a structured directive system and a rewritten Rust compiler.
+This repository is a **fork of [inkle/ink](https://github.com/inkle/ink)**, extended with a structured directive system and a rewritten Rust compiler. CODE is lARGELY AI DRIVEN at this stage, I'm just testing the limits and ideas, nowhere near to be useful for something (other than burning my precious tokens)
 
 ## Purpose
 
@@ -12,20 +12,20 @@ Narrative bridges the gap between structured narrative scripting (`ink`) and gam
 
 Narrative defines a clear boundary between writing and programming:
 
-*   **Programmer Workflow (`.inkdef.yaml`)**: Programmers define the "API" for the narrative — declaring assets, available actions, game state variables, and events.
-*   **Writer Workflow (`.ink`)**: Writers reference these definitions via validated `@` directives in their ink stories, ensuring that narrative scripts stay in sync with game engine capabilities.
+- **Programmer Workflow (`.inkdef.yaml`)**: Programmers define the "API" for the narrative — declaring assets, available actions, game state variables, and events.
+- **Writer Workflow (`.ink`)**: Writers reference these definitions via validated `@` directives in their ink stories, ensuring that narrative scripts stay in sync with game engine capabilities.
 
 This setup provides compile-time validation of game-side references, autocompletion for writers, and clean, engine-agnostic compilation.
 
 ## Roadmap
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| 1 | Rust ink compiler (compatible JSON output) | ✅ Complete |
-| 2 | Definitions parser (`.inkdef.yaml`) | ✅ Complete |
-| 3 | Directives (`@` prefix) + validation | Planned |
-| 4 | LSP with validation + autocompletion | Planned |
-| 5 | Godot SDK | Planned |
+| Phase | Description                                | Status      |
+| ----- | ------------------------------------------ | ----------- |
+| 1     | Rust ink compiler (compatible JSON output) | ✅ Complete |
+| 2     | Definitions parser (`.inkdef.yaml`)        | ✅ Complete |
+| 3     | Directives (`@` prefix) + validation       | Planned     |
+| 4     | LSP with validation + autocompletion       | Planned     |
+| 5     | Godot SDK                                  | Planned     |
 
 ---
 
@@ -37,8 +37,8 @@ This setup provides compile-time validation of game-side references, autocomplet
 
 **Download [Inky, our ink editor](https://github.com/inkle/inky), and the follow either:**
 
- * [The basics tutorial](https://www.inklestudios.com/ink/web-tutorial/) if you're non-technical and/or if you'd like to use ink to make a web-based interactive fiction game
- *  [The full tutorial](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md) if you want to see everything that ink has to offer.
+- [The basics tutorial](https://www.inklestudios.com/ink/web-tutorial/) if you're non-technical and/or if you'd like to use ink to make a web-based interactive fiction game
+- [The full tutorial](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md) if you want to see everything that ink has to offer.
 
 ## License
 
